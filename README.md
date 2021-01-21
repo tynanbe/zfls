@@ -1,6 +1,8 @@
 # Zfls
 
-**TODO: Add description**
+Format and colorize ZFS list results.
+
+Usage `zfls <filesystem>`.
 
 ## Installation
 
