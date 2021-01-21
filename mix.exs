@@ -1,10 +1,14 @@
 defmodule Zfls.MixProject do
   use Mix.Project
 
+  @app :zfls
+  @version "0.1.0"
+  #@source_url "https://github.com/tynanbe/#{@app}"
+
   def project do
     [
-      app: :zfls,
-      version: "0.1.0",
+      app: @app,
+      version: @version,
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       erlc_paths: ["src", "gen"],
