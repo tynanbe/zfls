@@ -25,3 +25,7 @@ zfls-*.tar
 
 # Temporary files for e.g. tests
 /tmp
+
+
+# The directory Gleam will write generated Erlang files to.
+/gen/

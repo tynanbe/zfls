@@ -7,6 +7,8 @@ defmodule Zfls.MixProject do
       version: "0.1.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
+      erlc_paths: ["src", "gen"],
+      compilers: [:gleam | Mix.compilers()],
       deps: deps()
     ]
   end
@@ -23,6 +25,8 @@ defmodule Zfls.MixProject do
     [
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"}
+      {:mix_gleam, "~> 0.1"},
+      {:gleam_stdlib, "~> 0.13"}
     ]
   end
 end
