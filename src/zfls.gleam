@@ -1,10 +1,7 @@
 import gleam/io
 import gleam/iterator
-import gleam/list.{Continue, Stop}
-import gleam/pair
 import gleam/string
 import gleam/string_builder
-import gleam/result
 import shellout.{StderrToStdout}
 
 pub const truncation_symbol = "~"
