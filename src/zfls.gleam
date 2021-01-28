@@ -1,5 +1,6 @@
 import gleam/io
 import gleam/iterator
+import gleam/list
 import gleam/string
 import gleam/string_builder
 import shellout.{StderrToStdout}
@@ -15,14 +16,18 @@ pub fn main(args: List(String)) -> NoReturn {
       "avail", "refer", "used", "name", "canmount", "mountpoint", "compression",
       "compressratio", "com.sun:auto-snapshot",
     ]
-    |> string.join(with: ",")
+    |> list.intersperse(with: ",")
+    |> string_builder.from_strings
+    |> string_builder.to_string
 
   let headers =
     [
       "AVAL", "REF", "USED", "NAME", "MOUNTPOINT", "", "COMPRESSION", "", "ASNAP",
     ]
-    |> string.join(with: "\t")
-    |> string.append(suffix: "\n")
+    |> list.intersperse(with: "\t")
+    |> string_builder.from_strings
+    |> string_builder.append("\n")
+    |> string_builder.to_string
 
   let widths = [4, 5, 5, max_width, 6, max_width, 4, 5, 5]
 
