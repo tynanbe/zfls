@@ -3,8 +3,6 @@ import gleam/pair
 import gleam/string
 import gleam/string_builder
 
-//todo solo with leading/trailing slash
-
 type Truncator {
   Truncator(
     builder: List(String),
@@ -19,7 +17,10 @@ type Truncator {
 }
 
 pub fn truncate(path, to length, with symbol) {
-  let path_parts = string.split(path, on: "/")
+  let path_parts =
+    path
+    |> string.split(on: "/")
+    |> reslash_ends
 
   let truncator =
     Truncator(
@@ -34,11 +35,48 @@ pub fn truncate(path, to length, with symbol) {
     )
 
   truncator.path_parts
-  |> list.fold_until(
-    from: truncator,
-    with: truncate_helper,
-  )
+  |> list.fold_until(from: truncator, with: truncate_helper)
   |> truncate_end
+}
+
+fn reslash_ends(path_parts) {
+  let foot_index = list.length(path_parts) - 1
+
+  path_parts
+  |> list.index_fold(
+    from: tuple([], []),
+    with: fn(index, item, acc) {
+      let tuple(buffer, path_parts) = acc
+
+      let buffer_length = list.length(buffer)
+
+      case string.is_empty(item) {
+        True if foot_index == index -> {
+          let [head, ..tail] = path_parts
+          let item =
+            [item, ..buffer]
+            |> list.map(fn(_empty_item) { "/" })
+            |> string_builder.from_strings
+            |> string_builder.prepend(head)
+            |> string_builder.to_string
+          tuple([], [item, ..tail])
+        }
+        True -> tuple([item, ..buffer], path_parts)
+        False if buffer_length == index -> {
+          let item =
+            buffer
+            |> list.map(fn(_empty_item) { "/" })
+            |> string_builder.from_strings
+            |> string_builder.append(item)
+            |> string_builder.to_string
+          tuple([], [item])
+        }
+        False -> tuple([], [item, ..list.append(buffer, path_parts)])
+      }
+    },
+  )
+  |> pair.second
+  |> list.reverse
 }
 
 fn truncate_helper(item, truncator) {
@@ -106,12 +144,10 @@ fn truncate_end(with truncator) {
   truncator.path_parts
   |> list.intersperse(with: "/")
   |> string_builder.from_strings
-  |> string_builder.prepend(
-    case truncator.prefix {
-      True -> truncator.symbol
-      False -> ""
-    }
-  )
+  |> string_builder.prepend(case truncator.prefix {
+    True -> truncator.symbol
+    False -> ""
+  })
   |> string_builder.to_string
   |> fn(path) {
     let extra = 1 + truncator.graphemes - truncator.length
