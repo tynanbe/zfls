@@ -15,6 +15,7 @@ defmodule Zfls.MixProject do
       compilers: [:gleam | Mix.compilers()],
       deps: deps(),
       escript: escript(),
+      preferred_cli_env: [eunit: :test],
     ]
   end
 
@@ -28,6 +29,7 @@ defmodule Zfls.MixProject do
     [
       #{:gleam_stdlib, "~> 0.13"},
       {:gleam_stdlib, github: "gleam-lang/stdlib", branch: "main", override: true},
+      {:mix_eunit, "~> 0.3"},
       {:mix_gleam, "~> 0.1"},
       {:shellout, "~> 0.1"},
     ]

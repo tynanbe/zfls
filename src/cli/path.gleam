@@ -3,6 +3,8 @@ import gleam/pair
 import gleam/string
 import gleam/string_builder
 
+//todo solo with leading/trailing slash
+
 type Truncator {
   Truncator(
     builder: List(String),
