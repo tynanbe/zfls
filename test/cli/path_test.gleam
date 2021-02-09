@@ -79,7 +79,7 @@ pub fn truncate_one_part_test() {
 pub fn truncate_some_parts_test() {
   path.truncate("abcd/efg/hi/jk", length, symbol)
   |> should.equal(
-    [symbol, "/e/hi/jk"]
+    [symbol, "a/e/h/jk"]
     |> string_builder.from_strings
     |> string_builder.to_string,
   )
@@ -88,7 +88,7 @@ pub fn truncate_some_parts_test() {
 pub fn truncate_all_parts_test() {
   path.truncate("abcd/efg/hi/jklmnopqrst", length, symbol)
   |> should.equal(
-    [symbol, "jklmnop", symbol]
+    [symbol, "/jklmno", symbol]
     |> string_builder.from_strings
     |> string_builder.to_string,
   )
