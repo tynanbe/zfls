@@ -2,6 +2,44 @@ import gleam/should
 import gleam/string_builder
 import cli/path
 
+pub fn normalize_root_test() {
+  let path = "/"
+  path.normalize(path)
+  |> should.equal(path)
+}
+
+pub fn normalize_slash_test() {
+  path.normalize("//foo//")
+  |> should.equal("/foo/")
+}
+
+pub fn normalize_backslash_test() {
+  path.normalize("\\\\foo\\\\")
+  |> should.equal("\\foo\\")
+}
+
+pub fn normalize_dos_drive_letter_test() {
+  let path = "C:"
+  path.normalize(path)
+  |> should.equal(path)
+}
+
+pub fn normalize_dos_drive_root_test() {
+  let path = "C:\\"
+  path.normalize(path)
+  |> should.equal(path)
+}
+
+pub fn normalize_dos_backslash_test() {
+  path.normalize("C:\\\\foo")
+  |> should.equal("C:\\foo")
+}
+
+pub fn normalize_dos_slash_test() {
+  path.normalize("C://foo")
+  |> should.equal("C:/foo")
+}
+
 // path.truncate/3
 pub const length = 9
 
