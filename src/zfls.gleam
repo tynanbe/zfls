@@ -15,16 +15,14 @@ pub fn main(args: List(String)) -> NoReturn {
   let color = "automatic"
   let max_width = 15
 
-  let props =
-    [
-      "avail", "refer", "used", "name", "canmount", "mountpoint", "compression",
-      "compressratio", "com.sun:auto-snapshot",
-    ]
+  let props = [
+    "avail", "refer", "used", "name", "canmount", "mountpoint", "compression", "compressratio",
+    "com.sun:auto-snapshot",
+  ]
 
-  let headers =
-    [
-      "AVAL", "REF", "USED", "NAME", "MOUNTPOINT", "", "COMPRESSION", "", "ASNAP",
-    ]
+  let headers = [
+    "AVAL", "REF", "USED", "NAME", "MOUNTPOINT", "", "COMPRESSION", "", "ASNAP",
+  ]
 
   let widths = [4, 5, 5, max_width, 6, max_width, 4, 5, 5]
 
@@ -34,15 +32,17 @@ pub fn main(args: List(String)) -> NoReturn {
 
   let format = list.zip(props, widths)
 
-  let args =
-    [
-      "list", "-H", "-o",
-      props
-      |> list.intersperse(with: ",")
-      |> string_builder.from_strings
-      |> string_builder.to_string,
-      "-r", ..args,
-    ]
+  let args = [
+    "list",
+    "-H",
+    "-o",
+    props
+    |> list.intersperse(with: ",")
+    |> string_builder.from_strings
+    |> string_builder.to_string,
+    "-r",
+    ..args
+  ]
 
   case shellout.cmd("zfs", args, [StderrToStdout(True)]) {
     Ok(tuple(output, status)) -> {
@@ -57,7 +57,6 @@ pub fn main(args: List(String)) -> NoReturn {
                 from: [],
                 with: fn(item, acc) {
                   let tuple(header, width) = item
-
                   case header {
                     "" -> {
                       let [tuple(prev_header, prev_width), ..tail] = acc
@@ -67,10 +66,9 @@ pub fn main(args: List(String)) -> NoReturn {
                   }
                 },
               )
-              |> list.reverse
+              |> list.reverse,
             ]
             |> iterator.from_list
-
           let output =
             output
             |> iterator.from_list
@@ -79,51 +77,44 @@ pub fn main(args: List(String)) -> NoReturn {
               |> string.split(on: "\n")
               |> iterator.from_list
             })
-            |> iterator.filter(for: function.compose(string.is_empty, bool.negate))
+            |> iterator.filter(for: function.compose(
+              string.is_empty,
+              bool.negate,
+            ))
             |> iterator.map(with: fn(line) {
               line
               |> string.split("\t")
               |> list.zip(format)
               |> list.map(with: fn(item) {
                 let tuple(item, tuple(prop, width)) = item
-
-                tuple(
-                  case prop {
+                tuple(case prop {
                     "name" | "mountpoint" ->
                       item
                       |> path.truncate(to: max_width, with: truncation_symbol)
                     _ -> item
-                  },
-                  width,
-                )
+                  }, width)
               })
             })
-
           headers
           |> iterator.append(output)
           |> iterator.map(with: fn(line) {
             line
             |> list.map(with: fn(item) {
               let tuple(item, width) = item
-
               item
               |> string.pad_right(to: width, with: " ")
             })
             |> string.join(with: "  ")
           })
-
-
         }
       }
       |> iterator.map(with: io.println)
       |> iterator.run
-
       status
     }
 
     Error(reason) -> {
       io.println(reason)
-
       1
     }
   }

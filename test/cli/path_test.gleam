@@ -131,3 +131,12 @@ pub fn truncate_all_parts_test() {
     |> string_builder.to_string,
   )
 }
+
+pub fn truncate_trim_left_test() {
+  path.truncate("ab/cd/ef/gh/ijk", length, symbol)
+  |> should.equal(
+    [symbol, "/e/g/ijk"]
+    |> string_builder.from_strings
+    |> string_builder.to_string,
+  )
+}

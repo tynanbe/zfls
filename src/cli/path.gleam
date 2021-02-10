@@ -7,7 +7,7 @@ import gleam/regex.{Match}
 import gleam/string
 import gleam/string_builder
 
-const part_pattern = "([/\\\\]*)([^/\\\\]*)"
+const part_pattern = "(?!$)([/\\\\]*)([^/\\\\]*)"
 
 pub fn truncate(path, to length, with symbol) {
   assert Ok(re) = regex.from_string(part_pattern)
@@ -24,32 +24,30 @@ pub fn truncate(path, to length, with symbol) {
       submatches
     })
 
-  let tuple(basename_index, "", basename) =
+  let tuple(basename_index, basename) =
     output
     |> iterator.fold(
-      from: tuple(-1, "", ""),
+      from: tuple(-1, string_builder.from_string("")),
       with: fn(item, acc) {
-        let tuple(index, prev_delimiter, prev_part) = acc
-        let [delimiter, part] = item
-        case part {
-          Some(_) -> tuple(
-            1 + index,
-            option.unwrap(delimiter, or: ""),
-            option.unwrap(part, or: ""),
-          )
-          None -> tuple(
+        let tuple(index, prev_item) = acc
+        let [delimiter, part] =
+          item
+          |> list.map(option.unwrap(_, or: ""))
+        case string.is_empty(part) {
+          True -> tuple(
             index,
-            "",
-            case delimiter {
-              Some(delimiter) -> [prev_delimiter, prev_part, delimiter]
-              None -> [prev_delimiter, prev_part]
-            }
-            |> string_builder.from_strings
-            |> string_builder.to_string,
+            prev_item
+            |> string_builder.append(delimiter),
+          )
+          False -> tuple(
+            1 + index,
+            [delimiter, part]
+            |> string_builder.from_strings,
           )
         }
       },
     )
+    |> pair.map_second(string_builder.to_string)
 
   let tuple(noop_index, output) = case length < string.length(basename) {
     True -> tuple(
@@ -111,7 +109,12 @@ pub fn truncate(path, to length, with symbol) {
 
   case path == output || 0 == basename_index {
     True -> [output]
-    False -> [symbol, output]
+    False -> [symbol, case length - 1 < string.length(output) {
+        True ->
+          output
+          |> string.slice(at_index: 1 - length, length: length)
+        False -> output
+      }]
   }
   |> string_builder.from_strings
   |> string_builder.to_string
