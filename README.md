@@ -1,4 +1,4 @@
-# zfls
+# zfls 🍡
 
 **Format and colorize ZFS list results**
 
